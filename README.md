@@ -4,7 +4,7 @@
 
 ### Problem
 
-Integrating SolidWorks with other applications can often be a challenging task. Whenever possible, I prefer to use Python for automation and scripting, as it offers a more streamlined approach. That's why I'm excited to present a solution that effectively integrates the SolidWorks API with more advanced tools, enabling greater flexibility and sophistication in complex projects.
+Integrating SolidWorks with other applications can often be a challenging task. Whenever possible, I prefer to use Python for automation and scripting, as it offers a more streamlined approach. That's why I'm excited to present a solution that effectively integrates the SolidWorks API with more advanced tools.
 
 ---
 
@@ -19,7 +19,7 @@ All of the following code snippets are in this repo as separate files if you pre
 ---
 
 If you'd like to see an example of a full project using this method, check out the following repository:
-
+[GitHub - KRoses96/python-solidworks-integration-example](https://github.com/KRoses96/python-solidworks-integration-example)
 Please note that this solution was originally developed for a very specific case and wasn’t initially intended to scale to the magnitude it eventually reached. My best advice is to consider scalability from the outset when developing your solution. Nonetheless, the repository contains a wealth of useful SolidWorks macros and offers valuable insights into tackling common engineering challenges in industrial manufacturing.
 
 ---
