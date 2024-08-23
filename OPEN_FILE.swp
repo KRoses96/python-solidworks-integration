@@ -1,0 +1,85 @@
+Option Explicit
+Public swApp As SldWorks.SldWorks
+Public swModel As SldWorks.ModelDoc2
+Dim doc As SldWorks.ModelDoc2
+Dim fileerror As Long
+Dim filewarning As Long
+Dim txt_character
+Dim CPath As String
+Dim directoryPath_2 As String
+Dim directoryPath_3 As String
+Dim MacroPath As String
+Dim exePath As String
+Dim boolstatus As Boolean
+Dim lErrors As Long
+Dim lWarnings As Long
+
+Sub main()
+    Dim Filter As String
+    Dim fileName As String
+    Dim fileConfig As String
+    Dim fileDispName As String
+    Dim fileOptions As Long
+
+    Set swApp = Application.SldWorks
+
+    ' The Filter string has three filters
+    ' associated with it; note the use of
+    ' the | character between filters
+    Filter = "SOLIDWORKS Files (*.sldasm)|*.sldasm|All Files (*.*)|*.*|"
+    fileName = swApp.GetOpenFileName("File to Attach", "", Filter, fileOptions, fileConfig, fileDispName)
+    Set doc = swApp.OpenDoc6(fileName, swDocPART, swOpenDocOptions_Silent, "", fileerror, filewarning)
+    Set doc = swApp.OpenDoc6(fileName, swDocASSEMBLY, swOpenDocOptions_Silent, "", fileerror, filewarning)
+    
+    Dim FilePath As String
+    Dim FileContent As String
+    Dim Op As String
+    
+    ' Get the current macro path using swApp
+    CPath = swApp.GetCurrentMacroPathName()
+    Dim directoryPath As String
+    directoryPath = Left(CPath, InStrRev(CPath, "\"))
+    
+    ' Define the file path to op.txt in the current directory of the macro
+    FilePath = Left(directoryPath, Len(directoryPath) - 7) & "extras\op.txt"
+    
+    ' Read the content of the file into FileContent
+    Open FilePath For Input As #1
+    FileContent = Input$(LOF(1), 1)
+    Close #1
+    
+    ' Get the 5th character
+    Op = Mid(FileContent, 9, 1)
+    
+    ' Conditionally execute macros based on the value of Op
+    Select Case Op
+        Case "0"
+            directoryPath_2 = 'Your macro path
+            RunMacro directoryPath_2, "MacroName", "main"
+            
+            ' Save
+            Dim swModel As SldWorks.ModelDoc2
+            Set swModel = swApp.GetFirstDocument
+            boolstatus = swModel.Save3(swSaveAsOptions_Silent, lErrors, lWarnings)
+            
+            ' Get the path of the macro file
+            MacroPath = Left(directoryPath, Len(directoryPath) - 7) & "exe"
+            
+            ' Construct the path of the executable
+            exePath = MacroPath & "\Imprimir.exe"
+            ' Open command prompt and execute the executable
+            Dim objShell As Object
+            Dim command As String
+            Set objShell = CreateObject("WScript.Shell")
+            ' Construct the command to execute the executable
+            command = "cmd.exe /c """ & exePath & """"
+            ' Run the command
+            Shell exePath, vbHide
+
+    End Select
+End Sub
+
+Sub RunMacro(path As String, moduleName As String, procName As String)
+    swApp.RunMacro2 path, moduleName, procName, swRunMacroOption_e.swRunMacroUnloadAfterRun, 0
+End Sub
+
