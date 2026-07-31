@@ -1,34 +1,16 @@
-# Python - Solidworks Connector
+# Python - SolidWorks Connector
+
+Minimal pattern for bridging SolidWorks with Python: a Python script launches SolidWorks and runs a macro; the macro (VBA/VB/C#) does the SolidWorks-side work (export DXF/CSV/images, etc.) and then shells out to a Python executable to continue the pipeline.
+
+All snippets below exist as separate files in this repo (`macrorun.py`, `OPEN_FILE.swp`, `OPEN_PYTHON_EXECUTABLE.swp`). Note GitHub doesn't render `.swp` files.
+
+A full example project using this method: [python-solidworks-integration-example](https://github.com/KRoses96/python-solidworks-integration-example). It was built for a specific use case that outgrew its original scope, so plan for scalability up front if you can. It has useful macros for common manufacturing automation tasks.
 
 ---
 
-### Problem
+### 1. `macrorun.py`: launch SolidWorks and run a macro
 
-Integrating SolidWorks with other applications can often be a challenging task. Whenever possible, I prefer to use Python for automation and scripting, as it offers a more streamlined approach. That's why I'm excited to present a solution that effectively integrates the SolidWorks API with more advanced tools.
-
----
-
-### Solution
-
-Begin by creating a Python script that launches SolidWorks and triggers the initial macro. Whether you’re programming with VBA, VB, or C#, use your preferred language to extract the necessary data—such as DXF files, CSV tables, or rendered images. Once the data extraction is complete, your SolidWorks macro should then initiate a Python executable or script to continue the operation.
-
-This example demonstrates how to establish the initial connection. From here, you can build out a more extensive, multi-stack solution tailored to your specific needs.
-
-All of the following code snippets are in this repo as separate files if you prefer to simply clone it, note that .swp is not recognized by github.
-
----
-
-If you'd like to see an example of a full project using this method, check out the following repository:
-
-[GitHub - KRoses96/python-solidworks-integration-example](https://github.com/KRoses96/python-solidworks-integration-example)
-
-Please note that this solution was originally developed for a very specific case and wasn’t initially intended to scale to the magnitude it eventually reached. My best advice is to consider scalability from the outset when developing your solution. Nonetheless, the repository contains a wealth of useful SolidWorks macros and offers valuable insights into tackling common engineering challenges in industrial manufacturing.
-
----
-
-### Examples
-
-This is the primary method for starting a SolidWorks macro using Python. It’s a straightforward process, but it’s important to ensure that you don’t accidentally start a new instance of SolidWorks. To prevent conflicts, this script will close any running instances of SolidWorks before executing the macro. I've also added a warning message to alert the user if SolidWorks is already running and there’s unsaved work. You can remove this warning if you're fully automating the process and want to eliminate any user input from your application.
+Closes any running SolidWorks instance before launching (with a confirmation prompt to avoid losing unsaved work) and then runs the target macro.
 
 ```python
 import subprocess
@@ -149,19 +131,11 @@ if __name__ == "__main__":
     open_solidworks_macro()
 
     SystemExit
-
-        no_button.grid(row=1, column=1, padx=5, pady=10)
-
-        root.mainloop()
-
-    open_solidworks_macro()
-
-    SystemExit
 ```
 
-##### Solidworks Macro to start a python executable:
+### 2. SolidWorks macro: reads `op.txt` and dispatches
 
-This macro is designed to open a SolidWorks file and initiate a specific macro based on the contents of a text file. The macro reads cases from the text file and maps them to corresponding macros. I've frequently used this approach to integrate with my Python GUI, allowing the GUI to dynamically update these values in the handle functions. This setup enables the execution of different automations with each button, making the workflow more flexible and efficient.
+Opens a file, reads an operation code from a text file, and runs the matching macro/executable. Useful for driving different automations from buttons in a Python GUI that just rewrites `op.txt`.
 
 ```vba
 Option Explicit
@@ -243,16 +217,11 @@ End Sub
 Sub RunMacro(path As String, moduleName As String, procName As String)
     swApp.RunMacro2 path, moduleName, procName, swRunMacroOption_e.swRunMacroUnloadAfterRun, 0
 End Sub
-
-
 ```
 
-##### Example Macro
+### 3. Example macro: hand off to an executable
 
-Note that this macro's primary function is to launch an executable—it doesn't perform any SolidWorks operations on its own. This is where you would implement the SolidWorks-specific logic before handing control back to Python. It's crucial to ensure that any files generated or modified by this macro are accessible to your Python script, allowing Python to seamlessly continue the workflow.
-
-Again if you want to check on some macros for this methodology you can check the following repo:
-
+Doesn't do any SolidWorks-specific work itself. This is the placeholder for your own SolidWorks logic before launching the next executable in the chain. Make sure any files it produces are accessible to the Python side.
 
 ```vba
 Dim swApp As SldWorks.SldWorks
@@ -280,5 +249,3 @@ Sub main()
     
 End Sub 
 ```
-
-
